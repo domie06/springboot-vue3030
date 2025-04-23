@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.PandianOrderListDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.pandian_order_id as pandianOrderId
+        ,a.goods_id as goodsId
+        ,a.goods_qian_number as goodsQianNumber
+        ,a.pandian_order_list_number as pandianOrderListNumber
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.PandianOrderListView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,goods.goods_name as goodsName
+        ,goods.goods_types as goodsTypes
+        ,goods.goods_number as goodsNumber
+        ,goods.goods_photo as goodsPhoto
+        ,goods.danwei as danwei
+        ,goods.danjia as danjia
+        ,goods.goods_content as goodsContent
+        ,goods.flag as flag
+        ,pandianOrder.yuangong_id as yuangongId
+        ,pandianOrder.pandian_order_name as pandianOrderName
+        ,pandianOrder.insert_time as insertTime
+        ,pandianOrder.pandian_order_content as pandianOrderContent
+
+        FROM pandian_order_list  a
+        left JOIN goods goods ON a.goods_id = goods.id
+        left JOIN pandian_order pandianOrder ON a.pandian_order_id = pandianOrder.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.pandianOrderId != null">
+                and a.pandian_order_id = #{params.pandianOrderId}
+            </if>
+            <if test="params.goodsId != null">
+                and a.goods_id = #{params.goodsId}
+            </if>
+            <if test="params.goodsQianNumberStart != null">
+                <![CDATA[  and a.goods_qian_number >= #{params.goodsQianNumberStart}   ]]>
+            </if>
+            <if test="params.goodsQianNumberEnd != null">
+                <![CDATA[  and a.goods_qian_number <= #{params.goodsQianNumberEnd}   ]]>
+            </if>
+            <if test="params.pandianOrderListNumberStart != null">
+                <![CDATA[  and a.pandian_order_list_number >= #{params.pandianOrderListNumberStart}   ]]>
+            </if>
+            <if test="params.pandianOrderListNumberEnd != null">
+                <![CDATA[  and a.pandian_order_list_number <= #{params.pandianOrderListNumberEnd}   ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+            <if test=" params.goodsName != '' and params.goodsName != null and params.goodsName != 'null' ">
+                and goods.goods_name like CONCAT('%',#{params.goodsName},'%')
+            </if>
+            <if test="params.goodsTypes != null">
+                and goods.goods_types = #{params.goodsTypes}
+            </if>
+
+            <if test="params.goodsNumberStart != null ">
+                <![CDATA[  and goods.goods_number >= #{params.goodsNumberStart}   ]]>
+            </if>
+            <if test="params.goodsNumberEnd != null ">
+                <![CDATA[  and goods.goods_number <= #{params.goodsNumberEnd}   ]]>
+            </if>
+            <if test=" params.danwei != '' and params.danwei != null and params.danwei != 'null' ">
+                and goods.danwei like CONCAT('%',#{params.danwei},'%')
+            </if>
+            <if test="params.danjiaStart != null ">
+                <![CDATA[  and goods.danjia >= #{params.danjiaStart}   ]]>
+            </if>
+            <if test="params.danjiaEnd != null ">
+                <![CDATA[  and goods.danjia <= #{params.danjiaEnd}   ]]>
+            </if>
+            <if test=" params.goodsContent != '' and params.goodsContent != null and params.goodsContent != 'null' ">
+                and goods.goods_content like CONCAT('%',#{params.goodsContent},'%')
+            </if>
+            <if test="params.flagStart != null ">
+                <![CDATA[  and goods.flag >= #{params.flagStart}   ]]>
+            </if>
+            <if test="params.flagEnd != null ">
+                <![CDATA[  and goods.flag <= #{params.flagEnd}   ]]>
+            </if>
+            <if test="params.yuangongId != null">
+                and pandianOrder.yuangong_id = #{params.yuangongId}
+            </if>
+            <if test=" params.pandianOrderName != '' and params.pandianOrderName != null and params.pandianOrderName != 'null' ">
+                and pandianOrder.pandian_order_name like CONCAT('%',#{params.pandianOrderName},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(pandianOrder.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(pandianOrder.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.pandianOrderContent != '' and params.pandianOrderContent != null and params.pandianOrderContent != 'null' ">
+                and pandianOrder.pandian_order_content like CONCAT('%',#{params.pandianOrderContent},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>

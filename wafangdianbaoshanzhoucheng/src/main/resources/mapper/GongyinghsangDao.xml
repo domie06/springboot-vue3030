@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.GongyinghsangDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.gongyinghsang_name as gongyinghsangName
+        ,a.gongyinghsang_types as gongyinghsangTypes
+        ,a.gongyinghsang_xinyong_types as gongyinghsangXinyongTypes
+        ,a.insert_time as insertTime
+        ,a.gongyinghsang_content as gongyinghsangContent
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.GongyinghsangView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM gongyinghsang  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.gongyinghsangName != '' and params.gongyinghsangName != null and params.gongyinghsangName != 'null' ">
+                and a.gongyinghsang_name like CONCAT('%',#{params.gongyinghsangName},'%')
+            </if>
+            <if test="params.gongyinghsangTypes != null">
+                and a.gongyinghsang_types = #{params.gongyinghsangTypes}
+            </if>
+            <if test="params.gongyinghsangXinyongTypes != null">
+                and a.gongyinghsang_xinyong_types = #{params.gongyinghsangXinyongTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.gongyinghsangContent != '' and params.gongyinghsangContent != null and params.gongyinghsangContent != 'null' ">
+                and a.gongyinghsang_content like CONCAT('%',#{params.gongyinghsangContent},'%')
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
